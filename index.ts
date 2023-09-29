@@ -3,26 +3,48 @@ import jwt from 'jsonwebtoken'
 
 import "./ws"
 
-app.get('/token/generate/', (req, res) => {
-    const key = process.env.JWT_SECRET_KEY;
-    const data = {
-        username: 'Arthur Tosta',
-        exp: 30
-    };
+const Users = [
+    {
+        user: 'Arthur',
+        password: '1234'
+    },
+    {
+        user: 'Lucas',
+        password: '1234'
+    },
+    {
+        user: 'Gustavo',
+        password: '1234'
+    },
+    {
+        user: 'Samilla',
+        password: '1234'
+    }
+]
 
-    const token = key ? jwt.sign(data, key):'';
+app.post('/auth/login/', (req, res) => {
+    const key = process.env.JWT_SECRET_KEY;
+    const {username, password} = req.body;
+
+    const user = Users.filter(user => user.user === username)[0];
+
+    if (!user || user.password != password) return res.status(401).send({msg:'Credenciais invalidas.'})
+
+    const token = key ? jwt.sign({sub:username}, key, {expiresIn: "8hr"}):'';
 
     res.send({
-        token
+        username,
+        token,
     })
 })
 
-app.get('/token/validate/', (req, res) => {
+app.get('/auth/validate/', (req, res) => {
     const key = process.env.JWT_SECRET_KEY;
+    const token = req.headers.authorization?.split(' ')[1];
     try{
-        const decoded = key ? jwt.verify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkFydGh1ciBUb3N0YSIsImV4cCI6MzAsImlhdCI6MTY5NTc5MzI4NX0.UCbofp2_9FyoptdPtx9RAPnpIw2TlSZGbgl7SpCWKk8', key) : false;
+        const decoded = (key&&token) ? jwt.verify(token, key) : false;
     
-        res.send({decoded});
+        res.send({response: decoded});
     } catch(err) {
         res.status(401).send(err);
     }
