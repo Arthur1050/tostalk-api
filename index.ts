@@ -1,5 +1,6 @@
 import { app, serverHttp } from "./http"
-import jwt from 'jsonwebtoken'
+import jwt, { Jwt, JwtPayload } from 'jsonwebtoken'
+import { User } from "./types/userTypes"
 
 import "./ws"
 
@@ -19,6 +20,25 @@ const Users = [
     {
         user: 'Samilla',
         password: '1234'
+    }
+]
+
+const Friends = [
+    {
+        username: 'Arthur',
+        profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+    },
+    {
+        username: 'Lucas',
+        profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+    },
+    {
+        username: 'Gustavo',
+        profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+    },
+    {
+        username: 'Samilla',
+        profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
     }
 ]
 
@@ -49,6 +69,29 @@ app.get('/auth/validate/', (req, res) => {
         res.status(401).send(err);
     }
 })
+
+app.get('/data/user/', (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    try {
+        const decoded = tokenValid(token);
+
+        if (decoded) {
+            res.send({
+                username: decoded.sub,
+                profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+                friends: Friends.filter(friend => friend.username != decoded.sub)
+            } as User)
+        }
+
+    } catch(err) {
+        res.status(401).send(err);
+    }
+})
+
+function tokenValid(token:string|undefined) {
+    const key = process.env.JWT_SECRET_KEY;
+    return (key&&token) ? jwt.verify(token, key) : false;
+}
 
 serverHttp.listen(3001, () => {
     console.log("Server iniciado na porta 3001!")
