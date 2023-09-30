@@ -1,6 +1,6 @@
 import { app, serverHttp } from "./http"
 import jwt, { Jwt, JwtPayload } from 'jsonwebtoken'
-import { User } from "./types/userTypes"
+import { Chanel, User } from "./types/userTypes"
 
 import "./ws"
 
@@ -81,6 +81,24 @@ app.get('/data/user/', (req, res) => {
                 profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
                 friends: Friends.filter(friend => friend.username != decoded.sub)
             } as User)
+        }
+
+    } catch(err) {
+        res.status(401).send(err);
+    }
+})
+
+app.post('/data/chanel/', (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    try {
+        const decoded = tokenValid(token);
+
+        if (decoded) {
+            res.send({
+                type: "FRIEND",
+                title: req.body.id,
+                profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+            } as Chanel)
         }
 
     } catch(err) {
