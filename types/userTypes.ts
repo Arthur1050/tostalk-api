@@ -7,6 +7,12 @@ export type User = {
 export type Friend = {
     username: string
     profile: string
+    status: string
+}
+
+export type UserStatus = {
+    username: string
+    status: string
 }
 
 export type Chanel = {

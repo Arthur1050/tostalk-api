@@ -1,6 +1,6 @@
 import { app, serverHttp } from "./http"
 import jwt, { Jwt, JwtPayload } from 'jsonwebtoken'
-import { Chanel, User } from "./types/userTypes"
+import { Chanel, Friend, User } from "./types/userTypes"
 
 import "./ws"
 
@@ -23,22 +23,26 @@ const Users = [
     }
 ]
 
-const Friends = [
+const Friends:Friend[] = [
     {
         username: 'Arthur',
         profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+        status: ''
     },
     {
         username: 'Lucas',
         profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+        status: ''
     },
     {
         username: 'Gustavo',
         profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+        status: ''
     },
     {
         username: 'Samilla',
         profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+        status: ''
     }
 ]
 
