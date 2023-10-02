@@ -11,12 +11,7 @@ export type Friend = {
 }
 
 export type UserStatus = {
+    socketId: string
     username: string
     status: string
-}
-
-export type Chanel = {
-    type: "GROUP"|"FRIEND"
-    title: string
-    profile: string
 }

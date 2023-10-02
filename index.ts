@@ -1,8 +1,9 @@
 import { app, serverHttp } from "./http"
 import jwt, { Jwt, JwtPayload } from 'jsonwebtoken'
-import { Chanel, Friend, User } from "./types/userTypes"
+import { Friend, User } from "./types/userTypes"
 
 import "./ws"
+import { Chanel } from "./types/chatTypes"
 
 const Users = [
     {
@@ -98,10 +99,16 @@ app.post('/data/chanel/', (req, res) => {
         const decoded = tokenValid(token);
 
         if (decoded) {
+            const {id} = req.body;
+
+            //ROTINA PARA IDENTIFICAR SE O ID E DE ALGUM GRUPO DO USUARIO REQUSITANTE
+            const isGroup = false;
+
             res.send({
-                type: "FRIEND",
-                title: req.body.id,
+                type: isGroup ? "GROUP" : "FRIEND",
+                title: id,
                 profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+                socketId: ''
             } as Chanel)
         }
 
