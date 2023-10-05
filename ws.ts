@@ -2,6 +2,8 @@ import { io } from "./http";
 import { UserStatus } from "./types/userTypes";
 import { Message } from "./types/chatTypes";
 
+var msgs:Message[] = []
+
 io.use((socket, next) => {
     const username = socket.handshake.auth.username;
     if (!username) {
@@ -27,7 +29,7 @@ io.on('connection', socket => {
         console.log('bem vindo de volta')
     }
 
-    socket.on('send-msg', ({msg, to, receiver}:{msg:string, to:string, receiver: string}) => {
+    socket.on('send-msg', ({msg, to, receiver, chanel}:{msg:string, to:string, receiver: string, chanel:string}) => {
         const date = new Date();
 
         const data:Message = {
@@ -35,10 +37,19 @@ io.on('connection', socket => {
             date,
             sender: socket.handshake.auth.username,
             receiver,
+            chanel,
             id: `${socket.id}_${date.getMilliseconds()}`,
         }
-
+        msgs.push(data);
         to && socket.to(to).emit('recept-msg', data)
+    })
+
+    socket.on('join-chanel', ({chanel}, callback) => {
+        const chanelMsgs = msgs.filter(msg => {
+            /* msg.sender == socket.handshake.auth.username; */
+        })
+        console.log(chanel)
+        callback(chanelMsgs)
     })
 
     socket.on('user-status', ({status}) => {
