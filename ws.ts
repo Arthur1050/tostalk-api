@@ -45,10 +45,8 @@ io.on('connection', socket => {
     })
 
     socket.on('join-chanel', ({chanel}, callback) => {
-        const chanelMsgs = msgs.filter(msg => {
-            /* msg.sender == socket.handshake.auth.username; */
-        })
-        console.log(chanel)
+        const username = socket.handshake.auth.username;
+        const chanelMsgs = msgs.filter(msg => (msg.receiver == username && msg.sender == chanel) || (msg.sender == username && msg.receiver == chanel))
         callback(chanelMsgs)
     })
 
@@ -56,4 +54,9 @@ io.on('connection', socket => {
         socket.handshake.auth.status = status;
         socket.broadcast.emit('user-status', [{username: socket.handshake.auth.username, status,socketId: socket.id } as UserStatus])
     }) 
+    
+    socket.on('disconnect', () => {
+        console.log('adeeuus')
+        socket.broadcast.emit('user-status', [{username: socket.handshake.auth.username, status: 'offline',socketId: socket.id } as UserStatus])
+    })
 })
