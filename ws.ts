@@ -15,6 +15,7 @@ io.use((socket, next) => {
 io.on('connection', socket => {
     console.log(socket.id)
     console.log(socket.handshake.auth)
+    const {username}:{[username:string]: string} = socket.handshake.auth;
 
     const onlineUsers:UserStatus[] = [];
     for (let [id, socket] of io.of("/").sockets) {
@@ -28,6 +29,8 @@ io.on('connection', socket => {
     if (socket.recovered) {
         console.log('bem vindo de volta')
     }
+
+    socket.broadcast.emit("online-user", {username, profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png'})
 
     socket.on('send-msg', ({msg, to, receiver, chanel}:{msg:string, to:string, receiver: string, chanel:string}) => {
         const date = new Date();
@@ -56,7 +59,6 @@ io.on('connection', socket => {
     }) 
     
     socket.on('disconnect', () => {
-        console.log('adeeuus')
         socket.broadcast.emit('user-status', [{username: socket.handshake.auth.username, status: 'offline',socketId: socket.id } as UserStatus])
     })
 })
