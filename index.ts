@@ -1,6 +1,9 @@
 import { app, serverHttp } from "./http"
-import jwt, { Jwt, JwtPayload } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import { Friend, User } from "./types/userTypes"
+import multer from 'multer'
+import fs from 'fs';
+import domain from 'domain'
 
 import "./ws"
 import { Chanel } from "./types/chatTypes"
@@ -27,22 +30,22 @@ const Users = [
 const Friends:Friend[] = [
     {
         username: 'Arthur',
-        profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+        profile: '',
         status: ''
     },
     {
         username: 'Lucas',
-        profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+        profile: '',
         status: ''
     },
     {
         username: 'Gustavo',
-        profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+        profile: '',
         status: ''
     },
     {
         username: 'Samilla',
-        profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+        profile: '',
         status: ''
     }
 ]
@@ -83,8 +86,12 @@ app.get('/data/user/', (req, res) => {
         if (decoded) {
             res.send({
                 username: decoded.sub,
-                profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+                profile: `${req.protocol}://${req.headers.host}/data/profile/${decoded.sub}`,
                 friends: Friends.filter(friend => friend.username != decoded.sub)
+                    .map(f => {
+                        f.profile = `${req.protocol}://${req.headers.host}/data/profile/${f.username}`;
+                        return f;
+                    })
             } as User)
         }
 
@@ -114,6 +121,61 @@ app.post('/data/chanel/', (req, res) => {
 
     } catch(err) {
         res.status(401).send(err);
+    }
+})
+
+app.get('/data/profile/:user', (req, res) => {
+    const {user} = req.params;
+    const pathImage = `profiles/${user}_profile.jpeg`;
+
+    var stream = fs.createReadStream(fs.existsSync(pathImage) ? pathImage : `profiles/default_profile.png`);
+
+    stream.pipe(res)
+})
+
+
+/* const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, __dirname + '/profiles')
+    },
+    filename: (req, file, cb) => {
+        try {
+            const {username} = req.body
+            var ext = file.originalname.split('.');
+
+            cb(null, `profile_${username}.${ext[ext.length - 1]}`)
+        } catch(err) {
+            cb(new Error('Erro na atualiza de perfil: '+err), '')
+        }
+    }
+}) */
+
+//const upload = multer({storage: storage,limits: {fileSize: 1024 * 1024 * 1 /*1Mb*/}}).any()
+
+const uploadProfile = multer({limits: {fileSize: 1024 * 1024 * 1 /* 1Mb */}, });
+
+app.post('/update/userdata/', uploadProfile.fields([{name: 'profile', maxCount: 1}]), (req, res) => {
+    
+    console.log(req.body)
+    const token = req.headers.authorization?.split(' ')[1];
+
+    const decoded = tokenValid(token);
+    const {oldUsername, username} = req.body;
+    
+    if (decoded && decoded.sub == oldUsername && req.files) {
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        const file = files['profile'][0];
+        const path = `profiles/${username}_profile.${file.mimetype.split('/')[1]}`;
+
+        fs.writeFile(path, file.buffer, {encoding: "ascii"}, (err => {
+            if (err) {
+                res.status(500).send({res:'Erro ao salvar imagem.'})
+                throw new Error('Error ao salvar a imagem: '+err)
+            }
+        }))
+        res.status(200).send({res:'Perfil atualizado com sucesso!'})
+    } else {
+        res.status(401).send({res:'Credenciais invalidas.'})
     }
 })
 
