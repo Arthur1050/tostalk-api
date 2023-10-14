@@ -114,7 +114,7 @@ app.post('/data/chanel/', (req, res) => {
             res.send({
                 type: isGroup ? "GROUP" : "FRIEND",
                 title: id,
-                profile: 'https://cdn.icon-icons.com/icons2/2468/PNG/512/user_icon_149329.png',
+                profile: `${req.protocol}://${req.headers.host}/data/profile/${id}`,
                 socketId: ''
             } as Chanel)
         }
@@ -126,7 +126,7 @@ app.post('/data/chanel/', (req, res) => {
 
 app.get('/data/profile/:user', (req, res) => {
     const {user} = req.params;
-    const pathImage = `profiles/${user}_profile.jpeg`;
+    const pathImage = `profiles/${user}_profile.png`;
 
     var stream = fs.createReadStream(fs.existsSync(pathImage) ? pathImage : `profiles/default_profile.png`);
 
@@ -160,19 +160,18 @@ app.post('/update/userdata/', uploadProfile.none(), (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
 
     const decoded = tokenValid(token);
-    const {oldUsername, username} = req.body;
+    const {oldUsername, username, profile} = req.body;
     
-    if (decoded && decoded.sub == oldUsername && req.files) {
-        /* const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-        const file = files['profile'][0];
-        const path = `profiles/${username}_profile.${file.mimetype.split('/')[1]}`;
+    if (decoded && decoded.sub == oldUsername) {
+        const path = `profiles/${oldUsername}_profile.png`;
+        const data64 = profile.replace(/^data:image\/png;base64,/, "");
 
-        fs.writeFile(path, file.buffer, {encoding: "ascii"}, (err => {
+        fs.writeFile(path, data64, {encoding: "base64"}, (err => {
             if (err) {
                 res.status(500).send({res:'Erro ao salvar imagem.'})
                 throw new Error('Error ao salvar a imagem: '+err)
             }
-        })) */
+        }))
         res.status(200).send({res:'Perfil atualizado com sucesso!'})
     } else {
         res.status(401).send({res:'Credenciais invalidas.'})
