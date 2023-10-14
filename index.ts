@@ -154,7 +154,7 @@ app.get('/data/profile/:user', (req, res) => {
 
 const uploadProfile = multer({limits: {fileSize: 1024 * 1024 * 1 /* 1Mb */}, });
 
-app.post('/update/userdata/', uploadProfile.fields([{name: 'profile', maxCount: 1}]), (req, res) => {
+app.post('/update/userdata/', uploadProfile.none(), (req, res) => {
     
     console.log(req.body)
     const token = req.headers.authorization?.split(' ')[1];
@@ -163,7 +163,7 @@ app.post('/update/userdata/', uploadProfile.fields([{name: 'profile', maxCount: 
     const {oldUsername, username} = req.body;
     
     if (decoded && decoded.sub == oldUsername && req.files) {
-        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        /* const files = req.files as { [fieldname: string]: Express.Multer.File[] };
         const file = files['profile'][0];
         const path = `profiles/${username}_profile.${file.mimetype.split('/')[1]}`;
 
@@ -172,7 +172,7 @@ app.post('/update/userdata/', uploadProfile.fields([{name: 'profile', maxCount: 
                 res.status(500).send({res:'Erro ao salvar imagem.'})
                 throw new Error('Error ao salvar a imagem: '+err)
             }
-        }))
+        })) */
         res.status(200).send({res:'Perfil atualizado com sucesso!'})
     } else {
         res.status(401).send({res:'Credenciais invalidas.'})
