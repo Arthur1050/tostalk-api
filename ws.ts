@@ -34,7 +34,7 @@ io.on('connection', socket => {
 
     socket.on('send-msg', ({msg, to, receiver, chanel}:{msg:string, to:string, receiver: string, chanel:string}) => {
         const date = new Date();
-
+        console.log(msg)
         const data:Message = {
             msg,
             date,
