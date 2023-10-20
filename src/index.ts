@@ -1,12 +1,11 @@
 import { app, serverHttp } from "./http"
 import jwt from 'jsonwebtoken'
-import { Friend, User } from "./types/userTypes"
+import { Friend, User } from "../types/userTypes"
 import multer from 'multer'
 import fs from 'fs';
-import domain from 'domain'
 
 import "./ws"
-import { Chanel } from "./types/chatTypes"
+import { Chanel } from "../types/chatTypes"
 
 const Users = [
     {

@@ -1,6 +1,6 @@
 import { io } from "./http";
-import { UserStatus } from "./types/userTypes";
-import { Message } from "./types/chatTypes";
+import { UserStatus } from "../types/userTypes";
+import { Message } from "../types/chatTypes";
 
 var msgs:Message[] = []
 
@@ -23,7 +23,7 @@ io.on('connection', socket => {
 
         onlineUsers.push({ username, status, socketId: id })
     }
-    console.log('users: ', onlineUsers)
+    console.table(onlineUsers, )
     socket.emit('user-status', onlineUsers)
 
     if (socket.recovered) {
